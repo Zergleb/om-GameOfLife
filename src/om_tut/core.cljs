@@ -10,10 +10,10 @@
   (atom
     {:grid
      [
-     [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
-     [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
-     [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
      [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+     [0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+     [0 0 0 1 0 1 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+     [0 0 0 0 1 1 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
      [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
      [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
      [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
@@ -30,11 +30,35 @@
     )
 )
 
-(defn getCellValue [row column data]
-	(get (get data row) column))
+(defn inBounds [row column data]
+  (and (>= row 0) (>= column 0) (< row (count data)) (< column (count (first data)))))
+
+(defn cellValue [row column data]
+  (cond 
+    (inBounds row column data) (nth (nth data row) column)
+    :else 0
+  )
+)
+
+(defn countLiveNeighbors [row column data]
+  (def value (+ 
+    (cellValue (+ row 1) column data)
+    (cellValue (- row 1) column data)
+    (cellValue row (+ column 1) data)
+    (cellValue row (- column 1) data)
+    (cellValue (+ row 1) (+ column 1) data)
+    (cellValue (+ row 1) (- column 1) data)
+    (cellValue (- row 1) (+ column 1) data)
+    (cellValue (- row 1) (- column 1) data)
+  ))
+  value
+)
 
 (defn calcCell [row column cellValue data]
-	(max cellValue (rand-nth [0 1])));;All cells that are green should stay green but don't.
+  (def live (countLiveNeighbors row column data))
+  (cond (or (= live 3) (= (+ cellValue live) 3)) 1
+    :else 0)	
+)
 
 (defn tick [data]
 	(def rowcolumns (:grid data))
