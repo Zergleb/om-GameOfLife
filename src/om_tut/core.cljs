@@ -1,5 +1,6 @@
 (ns ^:figwheel-always om-tut.core
     (:require[om.core :as om :include-macros true]
+              [om-bootstrap.button :as b]
               [om.dom :as dom :include-macros true]))
 
 (enable-console-print!)
@@ -95,7 +96,7 @@
     om/IRender
   	  (render [this]
   	    (dom/div nil
-  	      (dom/button #js {:onClick #(tick data) :className "tickbutton"} "Tick")
+          (b/button {:bs-style "primary" :onClick #(tick data) :className "tickbutton"} "Tick")
   	      (apply dom/div nil
   		    (om/build-all game-row (:grid data)))))))
 
